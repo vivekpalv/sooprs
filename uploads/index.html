@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO Client</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const socket = io('http://localhost:7000');
+
+      socket.on('connect', () => {
+        console.log('++++++++++++++++++ Connected to the server +++++++++++++++++++++');
+
+        // Join a room
+        socket.emit('joinRoom', 'room1');
+
+        // Send a message to the room
+        socket.emit('message', { room: 'room1', message: 'Hello, room1 from client!' });
+      });
+
+      socket.on('message', (data) => {
+        console.log(`Received message from ${data.sender}: ${data.message}`);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Disconnected from the server');
+      });
+
+      // To leave a room
+      // socket.emit('leaveRoom', 'room1');
+    });
+  </script>
+</head>
+<body>
+  <h1>Socket.IO Client</h1>
+</body>
+</html>
