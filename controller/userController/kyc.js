@@ -24,7 +24,7 @@ exports.doKyc = async (req, res) => {
         });
 
         const kyc = new Kyc({userId: user._id, documentType: documentType, name: name, mobile: mobile, country: country, city: city, pincode: pincode, kycDocuments: images});
-        user.kycStatus = 1;
+        user.kycStatus = 1; //1 means kyc submitted by user
         await user.save();
         await kyc.save();
         return res.status(200).json({message: 'KYC submitted successfully', user: user, kyc: kyc, status: 200});

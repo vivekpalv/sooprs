@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const upload = require('../middleware/multerConfig');
 
-const {currentUser, switchToBuyer, addVerifiedSkillsToUser, updateProfile, uploadProfileImage} = require('../controller/userController/user');
+const {currentUser, switchToBuyer, addVerifiedSkillsToUser, updateProfile, uploadProfileImage, uploadResume} = require('../controller/userController/user');
 const {doKyc} = require('../controller/userController/kyc');
 const { createLead, doBid, approveBid, approveMilestone, assignLead, createMilestone, updateMilestoneToInProgress, completeMilestone } = require('../controller/userController/leadController');
 
@@ -9,6 +9,7 @@ const { createLead, doBid, approveBid, approveMilestone, assignLead, createMiles
 router.get('/currentUser', currentUser);
 router.patch('/updateProfile', updateProfile);
 router.post('/uploadImage', upload.single('image'), uploadProfileImage);
+router.post('/uploadResume', upload.single('resume'), uploadResume);
 
 //Actions
 router.post('/switchToBuyer', switchToBuyer);

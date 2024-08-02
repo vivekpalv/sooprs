@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     resume: {
-        type: String
+        path: String
     },
     image: {
         path: String
@@ -55,11 +55,11 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    isKycVerified: {
-        type: Number,
-        enums: [0, 1], // 0: no, 1: yes
-        default: 0
-    },
+    // isKycVerified: {
+    //     type: Number,
+    //     enums: [0, 1], // 0: no, 1: yes
+    //     default: 0
+    // },
     isVerifiedSooprs:{
         type: Number,
         enums: [0, 1], // 0: No, 1: Yes
