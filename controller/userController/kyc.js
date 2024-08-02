@@ -13,9 +13,10 @@ exports.doKyc = async (req, res) => {
     
     try {
         const user = await User.findById(userId);
-        if(!user){
-            return res.status(404).json({message: 'User not found', status: 404});
-        }
+        if(!user){return res.status(404).json({message: 'User not found', status: 404});}
+
+        const isKycExist = await Kyc.findOne({userId: userId});
+        if(isKycExist){return res.status(400).json({message: 'KYC already submitted by this user', status: 400});}
 
         const images=req.files.map((file)=>{
             const uploadDirIndex = file.path.indexOf('uploads');
