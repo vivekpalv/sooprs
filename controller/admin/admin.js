@@ -4,6 +4,7 @@ const SubSubCategory = require('../../model/subSubCategory');
 const Skill = require('../../model/skill');
 const CreditLogic = require('../../model/creditLogic');
 const Credit = require('../../model/credit');
+const mongoose = require('mongoose');
 
 // Add category
 exports.addCategory = async (req, res) => {

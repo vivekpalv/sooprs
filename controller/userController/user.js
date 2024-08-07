@@ -6,22 +6,6 @@ const { isEmailValid, isMobileValid, isPasswordValid } = require('../../service/
 
 dotenv.config();
 
-// Get professional details of current logged-in professional
-exports.currentUser = async (req, res) => {
-    const currentId = req.id;
-    if (!currentId) { return res.status(401).json({ message: 'User id not found', status: 401 }); }
-
-    try {
-        const user = await User.findById(currentId).populate('verifiedSkills').populate('spCredits').populate('leads');
-        if (!user) { return res.status(404).json({ message: 'User not found by this id', status: 404 }); }
-
-        return res.status(200).json({ user: user, status: 200 });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: 'Internal server error', status: 500 });
-    }
-};
-
 //Upload professional image
 exports.uploadProfileImage = async (req, res) => {
     const currentId = req.id;
@@ -126,8 +110,8 @@ exports.uploadResume = async (req, res) => {
     }
 };
 
-// //add verified skills to user
-exports.addVerifiedSkillsToUser = async (req, res) => {
+//add verified skills to professional
+exports.addVerifiedSkills = async (req, res) => {
     const { skillId } = req.body;
     const userId = req.id;
     if (!userId || !skillId) {
@@ -170,5 +154,24 @@ exports.switchToBuyer = async (req, res) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
+};
+
+//current user logged-in User
+exports.currentUser = async (req, res) => {
+    const userId = req.id;
+    try {
+        const userAsClient = await User.findById(userId).populate('leads').populate('ratings');
+        const userAsProfessional = await User.findById(userId).populate('gigs').populate('ratings').populate('spCredits').populate('verifiedSkills');
+        if (!userAsClient || !userAsProfessional){return res.status(404).json({message: `user id invalid | userId: '${userId}' `, status: 404});}
+
+        if(userAsClient.isBuyer === 1){
+            return res.status(200).json({message: 'User found as buyer', user: userAsClient, status: 200});
+        }else{
+            return res.status(200).json({message: 'User found as professional', user: userAsProfessional, status: 200});
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
     }
 };

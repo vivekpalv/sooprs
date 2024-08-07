@@ -5,7 +5,8 @@ const bidSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_lead'
     },
-    professionalUserId:{
+    // professionalUserId:{
+    userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },

@@ -11,9 +11,12 @@ const http = require('http');
 
 //Import routes
 const authRoutes = require('./router/auth');
-const userRoutes = require('./router/user');
+const clientRoutes = require('./router/client');
 const adminRoutes = require('./router/admin');
-const withToken = require('./router/publicAccess');
+const publicRoutes = require('./router/public');
+
+const professionalRoutes = require('./router/professional');
+const userRoutes = require('./router/user');
 
 //Importing middlewares
 const {verifyToken, isBuyer} = require('./middleware/verifyToken');
@@ -40,12 +43,14 @@ app.use('/uploads', express.static(uploadsDir));
 //using routes without token
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
-app.use('/public', withToken);
+app.use('/public', publicRoutes);
 
 //using middleware
 app.use(verifyToken);
 
-//can't use routes with token.
+//can't use routes without token.
+app.use('/client', clientRoutes);
+app.use('/professional', professionalRoutes);
 app.use('/user', userRoutes);
 
 

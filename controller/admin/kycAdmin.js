@@ -5,7 +5,7 @@ const User = require('../../model/user');
 //Approve KYC
 exports.approveKyc = async (req, res) => {
     const { kycId } = req.body;
-    if(!kycId || !mongoose.Types.ObjectId.isValid(kycId)){return res.status(400).json({message: `kycId is required & Pass id in valid format | kycId: ${kycId}`, status: 400});}
+    if(!mongoose.Types.ObjectId.isValid(kycId)){return res.status(400).json({message: `kycId is required & provide it in valid format | kycId: '${kycId}' `, status: 400});}
     
     try {
         const kyc = await Kyc.findById(kycId);
@@ -27,7 +27,7 @@ exports.approveKyc = async (req, res) => {
 //Reject KYC
 exports.rejectKyc = async (req, res) => {
     const { kycId } = req.body;
-    if(!kycId || !mongoose.Types.ObjectId.isValid(kycId)){return res.status(400).json({message: `kycId is required & Pass id in valid format | kycId: ${kycId}`, status: 400});}
+    if(!mongoose.Types.ObjectId.isValid(kycId)){return res.status(400).json({message: `kycId is required & provide it in valid format | kycId: '${kycId}' `, status: 400});}
 
     try {
         const kyc = await Kyc.findById(kycId);
@@ -49,7 +49,7 @@ exports.rejectKyc = async (req, res) => {
 //get kyc by userId
 exports.getKycByUserId = async (req, res) => {
     const userId = req.params.userId;
-    if(!userId || !mongoose.Types.ObjectId.isValid(userId)){return res.status(400).json({message: `userId is required & Pass id in valid format | userid: ${userId}`, status: 400});}
+    if(!mongoose.Types.ObjectId.isValid(userId)){return res.status(400).json({message: `userId is required & provide it in valid format | userid: '${userId}' `, status: 400});}
 
     try {
         const kyc = await Kyc.findOne({userId: userId});

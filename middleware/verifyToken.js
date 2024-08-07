@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const dotenv = require('dotenv');
+const { default: mongoose } = require('mongoose');
 
 dotenv.config();
 
@@ -42,9 +43,30 @@ exports.verifyToken = async (req, res, next) => {
     }
 };
 
-exports.isBuyer = async (req, res, next) => {
-    if(req.isBuyer !== 1){
-        return res.status(401).json({message: 'You are not authorized to access this route, because you are not a buyer', status: 401});
+exports.isClient = async (req, res, next) => {
+    const user = await User.findById(req.id);
+    if(!mongoose.Types.ObjectId.isValid(req.id)){return res.status(400).json({message: `id is required & provide it in valid format | id: '${req.id}' `, status: 400});}
+    
+    if(user.isBuyer !== 1){
+        return res.status(401).json({message: 'You are not authorized to access this route, because you are not currently logged in as a Client', status: 401});
     }
+    if(user.isEmailVerified !== 1){
+        return res.status(401).json({message: 'You are not authorized to access this route, because your email is not verified', status: 401});
+    }
+    
+    next();
+};
+
+exports.isProfessional = async (req, res, next) => {
+    const user = await User.findById(req.id);
+    if(!mongoose.Types.ObjectId.isValid(req.id)){return res.status(400).json({message: `id is required & provide it in valid format | id: '${req.id}' `, status: 400});}
+
+    if(user.isBuyer !== 0){
+        return res.status(401).json({message: 'You are not authorized to access this route, because you are not currently logged in as a Professional', status: 401});
+    }
+    if(user.isEmailVerified !== 1){
+        return res.status(401).json({message: 'You are not authorized to access this route, because your email is not verified', status: 401});
+    }
+
     next();
 };

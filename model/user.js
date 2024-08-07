@@ -52,7 +52,8 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     isEmailVerified: {
-        type: Number,
+        type: Number, 
+        enums: [0, 1], // 0: No, 1: Yes
         default: 0
     },
     // isKycVerified: {
@@ -91,7 +92,15 @@ const userSchema = new mongoose.Schema({
     leads: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_lead'
-    }]
+    }],
+    gigs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_gig'
+    }],
+    ratings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_rating'
+    }],
 
 }, {timestamps: true});
 
