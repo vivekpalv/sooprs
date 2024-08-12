@@ -103,6 +103,7 @@ exports.approveBid = async (req, res) => {
 exports.assignLead = async (req, res) => {
     const bidId=req.params.bidId;
     const currentUserId = req.id;
+    // console.log('currentUserId: ', currentUserId);
     if(!bidId){return res.status(400).json({message: 'bidId is required', status: 400});}
 
     try {
@@ -183,11 +184,12 @@ exports.updateMilestoneToInProgress = async (req, res) => {
         if(milestone.isPaymentReceived === 1){return res.status(401).json({message: 'Payment is already received', status: 401});}
 
         const lead = await Lead.findById(milestone.leadId);
-        // if(!lead.userId.equals(currentClientUserId) || milestone.isApprovedByClient !== 1){return res.status(401).json({message: 'You are not authorized to make payment for this milestone, because this milestone not belongs to your lead || this milestone not approved by you.', status: 401});}
-        if(!lead.clientUserId.equals(currentClientUserId) || milestone.isApprovedByClient !== 1){return res.status(401).json({message: 'You are not authorized to make payment for this milestone, because this milestone not belongs to your lead || this milestone not approved by you.', status: 401});}
+        if(milestone.isApprovedByClient !== 1){return res.status(401).json({message: 'this milestone not approved by you, please approve first and then make payment.', status: 401});}
+        if(!lead.clientUserId.equals(currentClientUserId)){return res.status(401).json({message: 'You are not authorized to make payment for this milestone, because this milestone not belongs to your lead.', status: 401});}
         
         milestone.isPaymentReceived = 1;
         milestone.milestoneStatus = 1;  
+        lead.leadStatus = 1; //In-progress
         await milestone.save();
         return res.status(200).json({message: 'Payment received successfully', milestone: milestone, status: 200});
     } catch (error) {
@@ -205,14 +207,30 @@ exports.completeMilestone = async (req, res) => {
     try {
         const milestone = await Milestone.findById(milestoneId);
         if(!milestone){return res.status(404).json({message: 'Milestone not found by this id', status: 404});}
-        if(milestone.milestoneStatus === 2){return res.status(401).json({message: 'Milestone is already completed', status: 401});}
-
+        
         const lead = await Lead.findById(milestone.leadId);
-        // if(!lead.userId.equals(currentClientUserId) || milestone.isApprovedByClient !== 1 || milestone.isPaymentReceived !== 1){return res.status(401).json({message: 'You are not authorized to complete this milestone, because this milestone not belongs to your lead || this milestone not approved by you || payment is not received for this milestone.', status: 401});}
-        if(!lead.clientUserId.equals(currentClientUserId) || milestone.isApprovedByClient !== 1 || milestone.isPaymentReceived !== 1){return res.status(401).json({message: 'You are not authorized to complete this milestone, because this milestone not belongs to your lead || this milestone not approved by you || payment is not received for this milestone.', status: 401});}
+        
+        if(milestone.milestoneStatus === 2){return res.status(401).json({message: 'Milestone is already completed', status: 401});}
+        if(milestone.isApprovedByClient !== 1 || milestone.isPaymentReceived !== 1){return res.status(401).json({message: `${milestone.isApprovedByClient !==1 ? 'this milestone not approved by you' : 'payment is not received for this milestone'}`, status: 401});}
+        if(!lead.clientUserId.equals(currentClientUserId)){return res.status(401).json({message: 'You are not authorized to complete this milestone, because this milestone not belongs to your lead.', status: 401});}
         
         milestone.milestoneStatus = 2;
         await milestone.save();
+
+        //if all milestones are completed then lead will be completed
+        //get all milestones of the lead from lead.milestones array
+        const allMilestones = await Milestone.find({leadId: milestone.leadId, isApprovedByClient: 1, isPaymentReceived: 1});
+        let allMilestonesCompleted = true;
+        allMilestones.forEach((milestone)=>{
+            if(milestone.milestoneStatus !== 2){
+                allMilestonesCompleted = false;
+            }
+        });
+        if(allMilestonesCompleted){
+            lead.leadStatus = 2; //completed
+            await lead.save();
+        }
+        console.log('allMilestonesCompleted: ', allMilestonesCompleted);
         return res.status(200).json({message: 'Milestone completed successfully', milestone: milestone, status: 200});
     } catch (error) {
         console.log(error);

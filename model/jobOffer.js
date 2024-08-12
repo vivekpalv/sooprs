@@ -37,7 +37,8 @@ const jobOfferSchema = new mongoose.Schema({
         required: true
     },
     termAndCondition:{  //for uploading T&C documents
-        path: [String]
+        conditions: {type: String},
+        importantDocuments: [String]
     },
     isAcceptedByFreelancer:{
         type: Number,

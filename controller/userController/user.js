@@ -190,8 +190,10 @@ exports.addSkill = async (req, res) => {
         if(!user || !skill){return res.status(404).json({message: 'User or skill not found', status: 404});}
 
         if(isVerified === 1){
+            if(user.verifiedSkills.includes(skillId)){return res.status(400).json({message: 'Skill already added as verified skill', status: 400});}
             user.verifiedSkills.push(skillId);
         }else{
+            if(user.skills.includes(skillId)){return res.status(400).json({message: 'Skill already added as skill', status: 400});}
             user.skills.push(skillId);
         }
 

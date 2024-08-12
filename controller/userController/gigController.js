@@ -37,7 +37,7 @@ exports.createGig = async (req, res) => {
             gig.gigImg = { path: images };
         }
 
-        if (usingSkills) { gig.usingSkills = usingSkills; }
+        if (usingSkills) { gig.usingSkills = usingSkills; };
         await gig.save();
 
         user.gigs.push(gig._id);

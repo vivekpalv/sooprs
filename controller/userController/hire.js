@@ -2,15 +2,17 @@ const User = require('../../model/user');
 const Job = require('../../model/job');
 const JobOffer = require('../../model/jobOffer');
 const {default: mongoose} = require('mongoose');
+const {scheduleJobStatusChangeOnSpecificDate} = require('../../service/scheduler');
 
 //send job offer to freelancer (sent by recruiter)
 exports.makeJobOffer = async (req, res) => {
-    const { freelancerUserId, payment, jobType } = req.body;
+    const { freelancerUserId, payment, jobType, jobDescription} = req.body;
     const currentRecruiterUserId = req.id;
 
     if(!mongoose.Types.ObjectId.isValid(freelancerUserId) || !mongoose.Types.ObjectId.isValid(currentRecruiterUserId)){return res.status(400).json({message: `Invalid id | recruiterUserId: ${freelancerUserId} | freelancerUserId: ${currentRecruiterUserId}`})}
-    if(!payment || !jobType){return res.status(400).json({message: `All fields are required`})}
+    if(!payment || !jobType || !jobDescription){return res.status(400).json({message: `All fields are required`})}
     if(jobType < 0 || jobType > 3){return res.status(400).json({message: `jobType should b/w 0-3 | jobType: ${jobType}`})};
+    if(!req.files){return res.status(400).json({message: `Please T&C files in .pdf format`})};
 
     try {
         const freelancer = await User.findById(freelancerUserId);
@@ -24,12 +26,21 @@ exports.makeJobOffer = async (req, res) => {
             return res.status(400).json({message: `you already sent job offer to this freelancer | current status of job offer is: ${jobOfferExists.isAcceptedByFreelancer} | 0: no-response, 1: accepted, 2: rejected`});
         }
 
+        const TnCFiles = req.files.map((file)=>{
+            const uploadDirIndex = file.path.indexOf('uploads');
+            const relativePath = file.path.substring(uploadDirIndex);
+            return { path: relativePath };
+        });
+
         const jobOffer = new JobOffer({
             recruiterUserId: currentRecruiterUserId,
             freelancerUserId: freelancerUserId,
             payment: payment,
-            jobType: jobType
+            jobType: jobType,
+            jobDescription: jobDescription
         });
+
+        jobOffer.termAndCondition.importantDocuments = TnCFiles;
 
         await jobOffer.save();
         freelancer.jobOffers.push(jobOffer._id);
@@ -71,10 +82,9 @@ exports.acceptOrRejectJobOffer = async (req, res) => {
             });
             await job.save();
             freelancer.jobs.push(job._id);
-            
-
             await freelancer.save();
 
+            const sheduleJobStatusChange = scheduleJobStatusChangeOnSpecificDate(jobOffer.startDate, job._id);
         }
 
         return res.status(200).json({message: `Job offer ${isAccepted === 1 ? 'accepted' : 'rejected'} successfully`, jobOffer: jobOffer, status: 200});
@@ -83,3 +93,5 @@ exports.acceptOrRejectJobOffer = async (req, res) => {
         return res.status(500).json({message: 'Internal server error', status: 500});
     }
 };
+
+//get all
