@@ -13,10 +13,14 @@ const leadSchema = new mongoose.Schema({
     mobile:{
         type: Number
     },
+    skillsRequired:{
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'sp_skill'
+    },
     subSubCategory:{
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'sub_sub_category'
-    },
+    }, 
     leadTitle:{
         type: String
     },

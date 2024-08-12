@@ -49,16 +49,17 @@ exports.doBid = async (req, res) =>{
     try {
         const lead = await Lead.findById(leadId);
         if(!lead){return res.status(404).json({message: 'Lead not found by this id', status: 404});}
+        if(lead.clientUserId.equals(professionalUserId)){return res.status(401).json({message: 'You are not authorized to bid on this lead, because this lead is created by you', status: 401});}
         if(lead.assignedTo){return res.status(409).json({message: 'Lead is already assigned to someone', status: 409});}
 
         // const bid = new Bid({leadId: leadId, professionalUserId: professionalUserId, bidAmount: bidAmount, bidMessage: bidMessage});
         const bid = new Bid({leadId: leadId, userId: professionalUserId, bidAmount: bidAmount, bidMessage: bidMessage});
         
-        const integerAmount = await creditChargeCalculation(bidAmount); //converting float to integer (if value is in float).
-        bid.usedCredits = Math.floor(integerAmount);
-        
+        const integerAmount = await creditChargeCalculation(bidAmount); //calculating usedCredits for bid
+        if(!integerAmount){return res.status(409).json({message: 'conflict in creditChargeCalculation()', status: 409});}
+        bid.usedCredits = Math.floor(integerAmount); //converting float to integer (if value is in float).
         const manageCreditResult = await manageCredit(professionalUserId, bid.usedCredits, isCredit, remarks);
-        if(!manageCreditResult){return res.status(409).json({message: 'The request could not be processed because of conflict', status: 409});}
+        if(!manageCreditResult){return res.status(409).json({message: 'conflict in menageCredit()', status: 409});}
         
         await bid.save();
         lead.bids.push(bid._id);

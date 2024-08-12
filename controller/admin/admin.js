@@ -5,6 +5,7 @@ const Skill = require('../../model/skill');
 const CreditLogic = require('../../model/creditLogic');
 const Credit = require('../../model/credit');
 const mongoose = require('mongoose');
+const User = require('../../model/user');
 
 // Add category
 exports.addCategory = async (req, res) => {
@@ -58,18 +59,13 @@ exports.addCategory = async (req, res) => {
 //create skill
 exports.createSkill = async (req, res) => {
     const {name} = req.body;
-    if(!name){
-        return res.status(400).json({message: 'name is required', status: 400});
-    }
-    if(!req.file){
-        return res.status(400).json({message: 'Image is required', status: 400});
-    }
+
+    if(!name){return res.status(400).json({message: 'name is required', status: 400});}
+    if(!req.file){return res.status(400).json({message: 'Image is required', status: 400});}
 
     try {
         const isSkillExist = await Skill.findOne({name: name.toUpperCase()});
-        if(isSkillExist){
-            return res.status(400).json({message: 'Skill already exist', status: 400});
-        }
+        if(isSkillExist){return res.status(400).json({message: 'Skill already exist', status: 400});}
 
         const uploadDirIndex = req.file.path.indexOf('uploads');
         const relativePath = req.file.path.substring(uploadDirIndex);
@@ -78,6 +74,7 @@ exports.createSkill = async (req, res) => {
         const skill = new Skill({name: name.toUpperCase()});
         skill.badge = imagePath;
         await skill.save();
+        
         return res.status(200).json({message: 'Skill created successfully', skill: skill,status: 200});
     } catch (error) {
         console.log(error);
@@ -111,12 +108,20 @@ exports.updatingChargingPercentage = async (req, res) => {
 //create spCredit/wallet by user_id
 exports.createCredit = async (req, res) => {
     const {professionalUserId, creditAmount} = req.body;
-    if(!professionalUserId || !creditAmount){return res.status(400).json({message: 'userId and createAmount fields are required', status: 400});}
-    if(isNaN(creditAmount)){return res.status(400).json({message: 'createAmount must be a number', status: 400});}
+    if(!mongoose.Types.ObjectId.isValid(professionalUserId)){return res.status(400).json({message: `Invalid id: ${professionalUserId}`, status: 400});}
+    if(isNaN(creditAmount) || !creditAmount ){return res.status(400).json({message: 'createAmount is required and must be a number', status: 400});}
 
     try {
+        const user = await User.findById(professionalUserId);
+        if(!user){return res.status(400).json({message: `User not found for this id: ${professionalUserId}`, status: 400});}
+
+        const isCreditExist = await Credit.findOne({userId: professionalUserId});
+        if(isCreditExist){ return res.status(400).json({message: `sp_credit already exist for this userId: ${professionalUserId}`, status: 400});}
+
         const credit = new Credit({userId: professionalUserId, availableAmount: creditAmount});
         await credit.save();
+        user.spCredits = credit._id;
+        await user.save();
         return res.status(200).json({message: 'Credit created successfully', credit: credit, status: 200});
     } catch (error) {
         console.log(error);

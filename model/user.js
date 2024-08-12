@@ -71,18 +71,27 @@ const userSchema = new mongoose.Schema({
         enums: [0, 1], // 0: No, 1: Yes
         default: 0
     },
-    wallet: {
+    isOpenToHire: {
         type: Number,
+        enums: [0, 1], // 0: No, 1: Yes
         default: 0
     },
+    // wallet: {
+    //     type: Number,
+    //     default: 0
+    // },
     kycStatus: {
         type: Number,
         enums: [0, 1, 2, 3], // 0: not verified, 1: submitedDocuments, 2: approved, 3: rejected
         default: 0
     },
-    verifiedSkills: [{
+    skills:[{  //known skills
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_skill'
+    }],
+    verifiedSkills: [{  //verified skills after giving test
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_skill',
     }],
     spCredits:{
         type: mongoose.Schema.Types.ObjectId,
@@ -100,6 +109,14 @@ const userSchema = new mongoose.Schema({
     ratings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_rating'
+    }],
+    jobOffers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_job_offer'
+    }],
+    jobs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_job'
     }],
 
 }, {timestamps: true});

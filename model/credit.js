@@ -5,7 +5,8 @@ const User = require('./user');
 const creditSchema = new mongoose.Schema({
     userId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        unique: true
     },
     availableAmount:{
         type: Number,

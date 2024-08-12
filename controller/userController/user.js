@@ -3,6 +3,7 @@ const User = require('../../model/user');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const { isEmailValid, isMobileValid, isPasswordValid } = require('../../service/validation');
+const { default: mongoose } = require('mongoose');
 
 dotenv.config();
 
@@ -162,7 +163,7 @@ exports.currentUser = async (req, res) => {
     const userId = req.id;
     try {
         const userAsClient = await User.findById(userId).populate('leads').populate('ratings');
-        const userAsProfessional = await User.findById(userId).populate('gigs').populate('ratings').populate('spCredits').populate('verifiedSkills');
+        const userAsProfessional = await User.findById(userId).populate('gigs').populate('ratings').populate({path: 'spCredits', populate: {path: 'creditHistory', model: 'sp_creditHistory'}}).populate('verifiedSkills').populate('skills');
         if (!userAsClient || !userAsProfessional){return res.status(404).json({message: `user id invalid | userId: '${userId}' `, status: 404});}
 
         if(userAsClient.isBuyer === 1){
@@ -170,6 +171,33 @@ exports.currentUser = async (req, res) => {
         }else{
             return res.status(200).json({message: 'User found as professional', user: userAsProfessional, status: 200});
         }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
+    }
+};
+
+//add skills to User (verifiedSkills or skills) both.
+exports.addSkill = async (req, res) => {
+    const { skillId, isVerified } = req.body;
+    const currentUserId = req.id;
+
+    if(!mongoose.Types.ObjectId.isValid(skillId)){return res.status(400).json({message: `Invalid skill id: ${skillId}`, status: 400});}
+
+    try {
+        const user = await User.findById(currentUserId);
+        const skill = await Skill.findById(skillId);
+        if(!user || !skill){return res.status(404).json({message: 'User or skill not found', status: 404});}
+
+        if(isVerified === 1){
+            user.verifiedSkills.push(skillId);
+        }else{
+            user.skills.push(skillId);
+        }
+
+        await user.save();
+
+        return res.status(200).json({message: 'Skill added successfully', user: user, status: 200});
     } catch (error) {
         console.log(error);
         return res.status(500).json({message: 'Internal server error', status: 500});

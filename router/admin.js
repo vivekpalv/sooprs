@@ -11,8 +11,8 @@ router.post('/addCategory', addCategory);
 router.post('/createSkill', upload.single('badge'),createSkill);
 
 //Credit
-router.post('/updatingChargingPercentage/:percentage', updatingChargingPercentage);
 router.post('/createCredit', createCredit);
+router.post('/updatingChargingPercentage/:percentage', updatingChargingPercentage);
 
 //KYC
 router.get('/getKycByUserId/:userId', getKycByUserId);
