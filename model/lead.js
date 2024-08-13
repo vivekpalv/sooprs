@@ -31,8 +31,8 @@ const leadSchema = new mongoose.Schema({
         path: [String]
     },
     leadRequirements:{ //user can post requirements after finalizing over chat.
-        type: String,
         path: [String]
+        // approvedBy: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}] //approved by professional
     },
     minBudget:{
         type: Number

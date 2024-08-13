@@ -55,13 +55,13 @@ exports.uploadOrderRequirements = async (req, res) => {
     const { gigOrderId, orderRequirements } = req.body;
     const currentClientUser = req.id;
     if (!req.files) { return res.status(400).json({ error: 'Please upload requirements files', status: 400 }); }
-    if (!mongoose.Types.ObjectId.isValid(gigOrderId) || !orderRequirements ) { return res.status(400).json({ error: `orderId and orderRequirements is required, and ID should be in valid format | orderId: '${gigOrderId}' `, status: 400 }); }
+    if (!mongoose.Types.ObjectId.isValid(gigOrderId) || !orderRequirements) { return res.status(400).json({ error: `orderId and orderRequirements is required, and ID should be in valid format | orderId: '${gigOrderId}' `, status: 400 }); }
 
     try {
         const gigOrder = await GigOrder.findById(gigOrderId);
         if (!gigOrder) { return res.status(400).json({ error: `GigOrder not exist by orderId: '${gigOrderId}' `, status: 400 }); }
         if (!gigOrder.clientUserId.equals(currentClientUser)) { return res.status(400).json({ error: 'You are not authorized to upload requirements for this order, because you not done payment for this order', status: 400 }); }
-        if (gigOrder.isRequirementApproved === 3){ return res.status(400).json({ error: 'Order requirements already approved by both, now you cannot update requirements'}); }
+        if (gigOrder.isRequirementApproved === 3) { return res.status(400).json({ error: 'Order requirements already approved by both, now you cannot update requirements' }); }
 
         const requirements = req.files.map((file) => {
             const uploadDirIndex = file.path.indexOf('uploads');
@@ -91,12 +91,12 @@ exports.approveOrderRequirementsByClient = async (req, res) => {
         const gigOrder = await GigOrder.findById(gigOrderId);
         if (!gigOrder) { return res.status(400).json({ error: `GigOrder not exist by orderId: '${gigOrderId}' `, status: 400 }); }
         if (!gigOrder.clientUserId.equals(currentClientUser)) { return res.status(400).json({ error: 'You are not authorized to approve requirements for this order, because you not done payment for this order', status: 400 }); }
-        if (gigOrder.isRequirementApproved === 3){ return res.status(400).json({ error: 'Order requirements already approved by both'}); }
+        if (gigOrder.isRequirementApproved === 3) { return res.status(400).json({ error: 'Order requirements already approved by both' }); }
 
-        if(gigOrder.isRequirementApproved === 2){
+        if (gigOrder.isRequirementApproved === 2) {
             gigOrder.isRequirementApproved = 3;
             gigOrder.orderStatus = 1; //'1' means In-progress
-        }else{
+        } else {
             gigOrder.isRequirementApproved = 1;
         }
 
@@ -120,16 +120,18 @@ exports.approveOrderRequirementsByProfessional = async (req, res) => {
         const gigOrder = await GigOrder.findById(gigOrderId);
         if (!gigOrder) { return res.status(400).json({ error: `GigOrder not exist by orderId: '${gigOrderId}' `, status: 400 }); }
         // console.log(`${gigOrder.userId} | ${currentProfessional}`);
-        if (!gigOrder.userId.equals(currentProfessional)) { return res.status(400).json({ error: 'You are not authorized to approve requirements for this order, because you not professional of this order', status: 400 }); }
-        if (gigOrder.isRequirementApproved === 3){ return res.status(400).json({ error: 'Order requirements already approved by both'}); }
 
-        if(gigOrder.isRequirementApproved === 1){
+        console.log(gigOrder.userId, ' | ', currentProfessional);
+        if (!gigOrder.userId.equals(currentProfessional)) { return res.status(400).json({ error: 'You are not authorized to approve requirements for this order, because you not professional of this order', status: 400 }); }
+        if (gigOrder.isRequirementApproved === 3) { return res.status(400).json({ error: 'Order requirements already approved by both' }); }
+
+        if (gigOrder.isRequirementApproved === 1) {
             gigOrder.isRequirementApproved = 3;
             gigOrder.orderStatus = 1; // '1' means In-progress
-        }else{
+        } else {
             gigOrder.isRequirementApproved = 2;
         }
-        
+
         await gigOrder.save();
 
         return res.status(200).json({ message: 'Order requirements approved successfully', gigOrder: gigOrder, status: 200 });
@@ -147,7 +149,7 @@ exports.gigOrderCancelByClient = async (req, res) => {
     try {
         const gigOrder = await GigOrder.findById(orderId);
         if (!gigOrder) { return res.status(400).json({ error: `GigOrder not exist by orderId: '${orderId}' `, status: 400 }); }
-        if(gigOrder.orderStatus !== 0){ return res.status(400).json({ error: `You cannot cancel order, because order status is not 0 | current order status: '${gigOrder.orderStatus}' , 0: not-started, 1: In-progress, 2: completed, 3: cancelled-by-client, 4: cancelled-by-professional `, status: 400 }); }
+        if (gigOrder.orderStatus !== 0) { return res.status(400).json({ error: `You cannot cancel order, because order status is not 0 | current order status: '${gigOrder.orderStatus}' , 0: not-started, 1: In-progress, 2: completed, 3: cancelled-by-client, 4: cancelled-by-professional `, status: 400 }); }
         gigOrder.orderStatus = 3; // '3' means cancelled-by-client
         await gigOrder.save();
 
@@ -168,7 +170,7 @@ exports.gigOrderCancelByProfessional = async (req, res) => {
     try {
         const gigOrder = await GigOrder.findById(orderId);
         if (!gigOrder) { return res.status(400).json({ error: `GigOrder not exist by orderId: '${orderId}' `, status: 400 }); }
-        if(gigOrder.orderStatus !== 0){ return res.status(400).json({ error: `You cannot cancel order, because order status is not 0 | current order status: '${gigOrder.orderStatus}' , 0: not-started, 1: In-progress, 2: completed, 3: cancelled-by-client, 4: cancelled-by-professional `, status: 400 }); }
+        if (gigOrder.orderStatus !== 0) { return res.status(400).json({ error: `You cannot cancel order, because order status is not 0 | current order status: '${gigOrder.orderStatus}' , 0: not-started, 1: In-progress, 2: completed, 3: cancelled-by-client, 4: cancelled-by-professional `, status: 400 }); }
         if (!gigOrder.userId.equals(currentProfessional)) { return res.status(400).json({ error: 'You are not authorized to cancel order, because you not professional of this order', status: 400 }); }
 
         gigOrder.orderStatus = 4; // '4' means cancelled-by-professional
@@ -183,20 +185,20 @@ exports.gigOrderCancelByProfessional = async (req, res) => {
 
 //order create by client
 exports.createOrder = async (req, res) => {
-    const { gigId, razorpayOrderId, razorpayPaymentId} = req.body;
+    const { gigId, razorpayOrderId, razorpayPaymentId } = req.body;
     const currentClientUser = req.id;
-    
-    if(!mongoose.Types.ObjectId.isValid(gigId)){ return res.status(400).json({ error: `gigId is should be in valid format | gigId: '${gigId}' `, status: 400 }); }
-    if(!razorpayOrderId || !razorpayPaymentId){ return res.status(400).json({ error: 'All fields are required', status: 400 }); }
+
+    if (!mongoose.Types.ObjectId.isValid(gigId)) { return res.status(400).json({ error: `gigId is should be in valid format | gigId: '${gigId}' `, status: 400 }); }
+    if (!razorpayOrderId || !razorpayPaymentId) { return res.status(400).json({ error: 'All fields are required', status: 400 }); }
 
     try {
 
         const gig = await Gig.findById(gigId);
-        if(!gig){ return res.status(400).json({ error: `Gig not exist by gigId: '${gigId}' `, status: 400 }); }
-        if(gig.userId.equals(currentClientUser)){ return res.status(400).json({ error: 'You cannot order your own gig', status: 400 }); }
-        
+        if (!gig) { return res.status(400).json({ error: `Gig not exist by gigId: '${gigId}' `, status: 400 }); }
+        if (gig.userId.equals(currentClientUser)) { return res.status(400).json({ error: 'You cannot order your own gig', status: 400 }); }
+
         const user = await User.findById(currentClientUser);
-        if(!user){ return res.status(400).json({ error: `User not exist by userId: '${currentClientUser}' `, status: 400 }); }
+        if (!user) { return res.status(400).json({ error: `User not exist by userId: '${currentClientUser}' `, status: 400 }); }
 
         const gigOrder = new GigOrder({
             gigId: gigId,
@@ -222,23 +224,27 @@ exports.createOrder = async (req, res) => {
 exports.requestOtpForGigOrderCompletion = async (req, res) => {
     const gigOrderId = req.params.id;
     const currentProfessionalUserId = req.id;
-
     if (!mongoose.Types.ObjectId.isValid(gigOrderId)) { return res.status(400).json({ error: `orderId is required | orderId: ${gigOrderId}`, status: 400 }); }
 
     try {
         const gigOrder = await GigOrder.findById(gigOrderId);
         if (!gigOrder) { return res.status(400).json({ error: `GigOrder not exist by orderId: '${gigOrderId}' `, status: 400 }); }
         if (!gigOrder.userId.equals(currentProfessionalUserId)) { return res.status(400).json({ error: 'You are not authorized to request otp for this order, because you are not professional of this order', status: 400 }); }
-        
+        if (!gigOrder.orderStatus === 2) { return res.status(400).json({ error: 'You cannot request otp for this order, because order is already completed', status: 400 }); }
+
         const clientUser = await User.findById(gigOrder.clientUserId);
         if (!clientUser) { return res.status(400).json({ error: `clientUserId not exist in gigOrder | clientUserId: '${gigOrder.clientUserId}' `, status: 400 }); }
 
         const otp = Math.floor(100000 + Math.random() * 900000);
         const otpDocument = new Otp({ otpCode: otp, userId: gigOrder.userId, gigOrderId: gigOrder._id, clientUserId: gigOrder.clientUserId });
         await otpDocument.save();
-        await sendEmailOtp(otp, clientUser.email);
 
-        return res.status(200).json({ message: 'OTP sent successfully to  email', status: 200 });
+        const subject = 'OTP for Order Completion';
+        const message = 'Your OTP for Order Completion is';
+
+        await sendEmailOtp(clientUser.email, otp, subject, message);
+
+        return res.status(200).json({ message: `OTP sent successfully to email: ${clientUser.email}`, status: 200 });
     } catch (error) {
         console.log('Error in requestOtpForGigOrderCompletion(): ', error);
         return res.status(500).json({ error: 'Internal server error', status: 500 });
@@ -250,7 +256,7 @@ exports.completeOrderByProfessional = async (req, res) => {
     const { gigOrderId, otpCode } = req.body;
     const currentProfessionalUserId = req.id;
 
-    if (!mongoose.Types.ObjectId.isValid(orderId)) { return res.status(400).json({ error: `orderId is required | orderId: ${orderId}`, status: 400 }); }
+    if (!mongoose.Types.ObjectId.isValid(gigOrderId)) { return res.status(400).json({ error: `orderId is required | orderId: ${orderId}`, status: 400 }); }
 
     try {
         const gigOrder = await GigOrder.findById(gigOrderId);

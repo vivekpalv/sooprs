@@ -29,7 +29,7 @@ exports.makeJobOffer = async (req, res) => {
         const TnCFiles = req.files.map((file)=>{
             const uploadDirIndex = file.path.indexOf('uploads');
             const relativePath = file.path.substring(uploadDirIndex);
-            return { path: relativePath };
+            return relativePath;
         });
 
         const jobOffer = new JobOffer({

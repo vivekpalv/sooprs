@@ -8,12 +8,14 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-module.exports.sendEmailOtp = async (email, otp) => {
+module.exports.sendEmailOtp = async (email, otp, subject, message) => {
+    // console.log(email, otp);
     const mailOptions = {
         from: '', // Enter your email address
         to: email,
-        subject: 'OTP for Email Verification',
-        text: `Your OTP for Email Verification is ${otp}`
+        // to: 'vivekpalvp0770gmail.com',
+        subject: subject,
+        text: `${message} ${otp}`
     };
     await transporter.sendMail(mailOptions);
 };

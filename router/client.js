@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const upload = require('../middleware/multerConfig');
 
-const { createLead, approveBid, approveMilestone, assignLead, updateMilestoneToInProgress, completeMilestone } = require('../controller/userController/leadController');
+const { createLead, approveBid, approveMilestone, assignLead, updateMilestoneToInProgress, completeMilestone, uploadRequirements } = require('../controller/userController/leadController');
 const { createOrder, approveOrderRequirementsByClient, uploadOrderRequirements, gigOrderCancelByClient } = require('../controller/userController/gigController');
 const { provideRating, provideFeedbackOrRatingToGig } = require('../controller/userController/rating');
 const { clientHome } = require('../controller/userController/user');
@@ -15,6 +15,7 @@ router.post('/assignLead/:bidId', assignLead);
 router.post('/approveMilestone/:milestoneId', approveMilestone);
 router.post('/updateMilestoneToInProgress/:milestoneId', updateMilestoneToInProgress); //After payment
 router.post('/completeMilestone/:milestoneId', completeMilestone);
+router.patch('/uploadRequirements', upload.array('attachments', 10), uploadRequirements);
 
 //Gig
 router.post('/createOrder', createOrder);

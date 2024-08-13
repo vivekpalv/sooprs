@@ -75,6 +75,9 @@ exports.generateOtp = async (req, res) => {
     const userId = req.params.id;
     if(!mongoose.Types.ObjectId.isValid(userId)){return res.status(400).json({message: `Invalid user id: '${userId}'`, status: 400});}
 
+    const subject = 'OTP for Email Verification';
+    const message = 'Your OTP for Email Verification is';
+
     try {
         const user = await User.findById(userId);
         if(!user){return res.status(404).json({message: `User not found | user id: '${userId}'`, status: 404});}
@@ -83,7 +86,8 @@ exports.generateOtp = async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000);
         const otpDocument = new Otp({otpCode: otp, userId: userId});
         await otpDocument.save();
-        await sendEmailOtp(otp, user.email);
+        // await sendEmailOtp(otp, user.email);
+        await sendEmailOtp(otp, user.email, subject, message);
         
         return res.status(200).json({message: 'OTP sent successfully to your email', status: 200});
     } catch (error) {

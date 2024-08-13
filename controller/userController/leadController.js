@@ -113,11 +113,10 @@ exports.assignLead = async (req, res) => {
         
         const lead = await Lead.findById(bid.leadId);
         if(!lead){return res.status(404).json({message: 'Lead not found by this id', status: 404});}
-        // if(!lead.userId.equals(currentUserId)){return res.status(401).json({message: 'You are not authorized to assign this lead, because this lead is not created by you', status: 401 });}
         if(!lead.clientUserId.equals(currentUserId)){return res.status(401).json({message: 'You are not authorized to assign this lead, because this lead is not created by you', status: 401 });}
         if(lead.assignedTo){return res.status(401).json({message: 'Lead is already assigned to someone', status: 401});}
+        // if(lead.leadRequirements.path.length === 0){return res.status(409).json({message: 'Please upload requirements first', status: 409});}
         
-        // lead.assignedTo = bid.professionalUserId;
         lead.assignedTo = bid.userId;
         await lead.save();
         return res.status(200).json({message: 'Lead assigned successfully', lead: lead, status: 200});
@@ -232,6 +231,35 @@ exports.completeMilestone = async (req, res) => {
         }
         console.log('allMilestonesCompleted: ', allMilestonesCompleted);
         return res.status(200).json({message: 'Milestone completed successfully', milestone: milestone, status: 200});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
+    }
+};
+
+//upload requirements for lead by clientUser
+exports.uploadRequirements = async (req, res) => {
+    const {leadId} = req.body;
+    const currentClientUserId = req.id;
+    if(!req.files){return res.status(400).json({message: 'At least one file is required', status: 400});}
+    if(!mongoose.Types.ObjectId.isValid(leadId)){return res.status(400).json({message: `Invalid id | leadId: ${leadId}`, status: 400});}
+
+    try {
+        const lead = await Lead.findById(leadId);
+        if(!lead){return res.status(404).json({message: 'Lead not found by this id', status: 404});}
+
+        if(!lead.clientUserId.equals(currentClientUserId)){return res.status(401).json({message: 'You are not authorized to upload requirements for this lead, because this lead not belongs to you.', status: 401});}
+        if(lead.assignedTo){return res.status(409).json({message: 'You cannot upload requirment because Lead is assigned to someone', status: 409});}
+
+        const requirementsArray = req.files.map((file)=>{ //uploading requirements
+            const uploadDirIndex = file.path.indexOf('uploads');
+            const relativePath = file.path.substring(uploadDirIndex);
+            return relativePath;
+        }); 
+
+        lead.leadRequirements = {path: requirementsArray};
+        await lead.save();
+        return res.status(200).json({message: 'Requirements uploaded successfully', lead: lead, status: 200});
     } catch (error) {
         console.log(error);
         return res.status(500).json({message: 'Internal server error', status: 500});
