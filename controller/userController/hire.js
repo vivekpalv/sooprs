@@ -65,7 +65,8 @@ exports.acceptOrRejectJobOffer = async (req, res) => {
         const jobOffer = await JobOffer.findById(jobOfferId);
         const freelancer = await User.findById(currentFreelancerUserId);
         if(!jobOffer || !freelancer){return res.status(404).json({message: `Job offer or freelancer not found | jobOfferId: ${jobOfferId} | freelancerUserId: ${currentFreelancerUserId}`})}
-
+        const recruiter = await User.findById(jobOffer.recruiterUserId);
+        
         if(jobOffer.freelancerUserId.toString() !== currentFreelancerUserId){return res.status(400).json({message: `You are not authorized to accept or reject this job offer`})}
 
         jobOffer.isAcceptedByFreelancer = isAccepted;
@@ -81,8 +82,12 @@ exports.acceptOrRejectJobOffer = async (req, res) => {
                 jobDetails: jobOffer._id
             });
             await job.save();
+            
             freelancer.jobs.push(job._id);
             await freelancer.save();
+            
+            recruiter.providedEmployments.push(job._id);
+            await recruiter.save();
 
             const sheduleJobStatusChange = scheduleJobStatusChangeOnSpecificDate(jobOffer.startDate, job._id);
         }
@@ -94,4 +99,3 @@ exports.acceptOrRejectJobOffer = async (req, res) => {
     }
 };
 
-//get all

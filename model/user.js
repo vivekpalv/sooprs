@@ -118,6 +118,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_job'
     }],
+    providedEmployments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_job'
+    }],
 
 }, {timestamps: true});
 
