@@ -118,7 +118,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_job'
     }],
-    providedEmployments: [{
+    providedJobs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_job'
     }],

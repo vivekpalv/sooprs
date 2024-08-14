@@ -220,7 +220,7 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-//request otp for order completion
+//request otp for order completion (by freelancer)
 exports.requestOtpForGigOrderCompletion = async (req, res) => {
     const gigOrderId = req.params.id;
     const currentProfessionalUserId = req.id;
@@ -236,7 +236,7 @@ exports.requestOtpForGigOrderCompletion = async (req, res) => {
         if (!clientUser) { return res.status(400).json({ error: `clientUserId not exist in gigOrder | clientUserId: '${gigOrder.clientUserId}' `, status: 400 }); }
 
         const otp = Math.floor(100000 + Math.random() * 900000);
-        const otpDocument = new Otp({ otpCode: otp, userId: gigOrder.userId, gigOrderId: gigOrder._id, clientUserId: gigOrder.clientUserId });
+        const otpDocument = new Otp({ otpCode: otp, senderId: gigOrder.userId, gigOrderId: gigOrder._id, userId: gigOrder.clientUserId });
         await otpDocument.save();
 
         const subject = 'OTP for Order Completion';
@@ -264,7 +264,7 @@ exports.completeOrderByProfessional = async (req, res) => {
         if (!gigOrder || !user) { return res.status(400).json({ error: `GigOrder or User not exist | gigOrderId: ${gigOrderId} | userId: '${currentProfessionalUserId}' `, status: 400 }); }
         if (!gigOrder.userId.equals(currentProfessionalUserId)) { return res.status(400).json({ error: 'You are not authorized to complete order, because you are not professional of this order', status: 400 }); }
 
-        const otpDocument = await Otp.findOne({ userId: gigOrder.userId, otpCode: otpCode, gigOrderId: gigOrderId });
+        const otpDocument = await Otp.findOne({ senderId: gigOrder.userId, otpCode: otpCode, gigOrderId: gigOrderId, userId: gigOrder.clientUserId });
         if (!otpDocument) { return res.status(400).json({ error: 'Invalid OTP', status: 400 }); }
 
         gigOrder.orderStatus = 2; //'2' means completed

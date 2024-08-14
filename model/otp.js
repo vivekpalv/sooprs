@@ -6,7 +6,7 @@ const otpSchema = new mongoose.Schema({
         required: true
     },
     userId:{ //if otp for email verification in that case professional and user id not matter
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId, // OTP receiver
         ref: 'User',
         required: true
     },
@@ -14,9 +14,13 @@ const otpSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_gig'
     },
-    clientUserId:{  //assign this variable only if otp is for gigOrder
-        type: mongoose.Schema.Types.ObjectId,
+    senderId:{
+        type: mongoose.Schema.Types.ObjectId, // OTP sender
         ref: 'User'
+    },
+    jobId:{  //assign this variable only if otp is for job
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_job'
     },
     createdAt:{
         type: Date,

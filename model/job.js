@@ -23,7 +23,11 @@ const jobSchema = new mongoose.Schema({
     jobDetails:{
         type: mongoose.Schema.Types.ObjectId, //object id of jobOffer
         ref: 'sp_job_offer'
-    }
+    },
+    salaryHistory:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_salary'
+    }]
 }, {timestamps: true});
 
 const Job = mongoose.model('sp_job', jobSchema);
