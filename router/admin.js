@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const upload = require('../middleware/multerConfig');
 
-const {addCategory, createSkill, updatingChargingPercentage, createCredit} = require('../controller/admin/admin');
+const {addCategory, createSkill, updatingChargingPercentage, createCredit, jobManagerRequest, leadManagerRequest} = require('../controller/admin/admin');
 const {approveKyc, rejectKyc, getKycByUserId} = require('../controller/admin/kycAdmin');
 
 //Get
@@ -18,6 +18,10 @@ router.post('/updatingChargingPercentage/:percentage', updatingChargingPercentag
 router.get('/getKycByUserId/:userId', getKycByUserId);
 router.post('/approveKyc', approveKyc);
 router.post('/rejectKyc', rejectKyc);
+
+//Manager Request
+router.post('/jobManagerRequest', jobManagerRequest);
+router.post('/leadManagerRequest', leadManagerRequest);
 
 
 module.exports = router;
