@@ -3,7 +3,7 @@ const User = require('./user');
 
 const leadSchema = new mongoose.Schema({
     // userId:{  //change to clientUserId
-    clientUserId:{  //change to clientUserId
+    clientUserId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
@@ -53,6 +53,10 @@ const leadSchema = new mongoose.Schema({
     assignedTo:{  //user can asign lead to professional after finalizing over chat.
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    managerId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_manager'
     },
     bids:[{
         type: mongoose.Schema.Types.ObjectId,

@@ -11,9 +11,9 @@ const jobSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    managerUserId:{
+    managerId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'sp_manager',
     },
     jobStatus:{
         type: Number,
@@ -28,6 +28,10 @@ const jobSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_salary'
     }]
+    // managerRequests:[{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'sp_manager_request'
+    // }]
 }, {timestamps: true});
 
 const Job = mongoose.model('sp_job', jobSchema);

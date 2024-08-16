@@ -2,6 +2,7 @@ const User = require('../../model/user');
 const Lead = require('../../model/lead');
 const Bid = require('../../model/bid');
 const Milestone = require('../../model/milestone');
+const ManagerRequest = require('../../model/managerRequest');
 const { creditChargeCalculation } = require('../../utility/creditChargeCalculation');
 const { manageCredit } = require('../../service/creditManagerService');
 const mongoose = require('mongoose');
@@ -265,3 +266,26 @@ exports.uploadRequirements = async (req, res) => {
         return res.status(500).json({message: 'Internal server error', status: 500});
     }
 };
+
+//send managerRequest to admin for a lead
+exports.requestManagerLead = async (req, res) => {
+    const {leadId} = req.body;
+    const currentUserId = req.id;
+
+    if(!mongoose.Types.ObjectId.isValid(leadId)){return res.status(400).json({message: `Invalid id | leadId: ${leadId}`, status: 400});}
+
+    try {
+        const lead = await Lead.findById(leadId);
+        if(!lead){return res.status(404).json({message: 'Lead not found by this id', status: 404});}
+        if(!lead.clientUserId.equals(currentUserId)){return res.status(401).json({message: 'You are not authorized to send managerRequest for this lead, because this lead not belongs to you.', status: 401});}
+        if(lead.managerId){return res.status(409).json({message: 'Manager is already assigned', status: 409});}
+
+        const managerRequest = new ManagerRequest({leadId: leadId, status: 0}); //status: 0 means pending-request
+        await managerRequest.save();
+        return res.status(200).json({message: 'ManagerRequest sent successfully', managerRequest: managerRequest, status: 200});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
+    }
+};
+

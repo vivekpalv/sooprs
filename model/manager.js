@@ -18,10 +18,14 @@ const managerSchema = new mongoose.Schema({
     softSkills: [{
         type: String
     }],
-    assignedProjects:[{
+    assignedJobs:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_job'
-    }]
+    }],
+    assignedLeads:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sp_lead'
+    }],
     
 }, {timestamps: true});
 

@@ -6,6 +6,10 @@ const CreditLogic = require('../../model/creditLogic');
 const Credit = require('../../model/credit');
 const mongoose = require('mongoose');
 const User = require('../../model/user');
+const ManagerRequest = require('../../model/managerRequest');
+const Manager = require('../../model/manager');
+const Job = require('../../model/job');
+const Lead = require('../../model/lead');
 
 // Add category
 exports.addCategory = async (req, res) => {
@@ -165,5 +169,94 @@ exports.allSubCategory=async(req,res)=>{
         return res.status(500).json({message: 'Internal server error', status: 500});
     }
 };
+
+//accept or reject manager request for 'job'
+exports.jobManagerRequest=async(req,res)=>{
+    const {managerRequestId, managerId, acceptOrReject, message}=req.body;
+
+    if(!mongoose.Types.ObjectId.isValid(managerRequestId)){return res.status(400).json({message: `Invalid id: ${managerRequestId}`, status: 400});}
+    if(acceptOrReject!==0 && acceptOrReject!==1){return res.status(400).json({message: 'acceptOrReject must be 0 or 1 ( 0: reject | 1: accept ) ', status: 400});}
+    if(!message){return res.status(400).json({message: 'message is required', status: 400});}
+
+    try {
+        const managerRequest = await ManagerRequest.findById(managerRequestId);
+        const job = await Job.findById(managerRequest.jobId);
+        const manager = await Manager.findById(managerId);
+
+        if(!managerRequest || !job){return res.status(400).json({message: `managerRequest or job not found | managerRequestId: ${managerRequestId} | jobId: ${managerRequest.jobId}`, status: 400});}
+        if(!manager){return res.status(400).json({message: `Manager not found | managerId: ${managerId}`, status: 400});}
+        if(managerRequest.status!==0){return res.status(400).json({message: `Manager request already accepted(1) or rejected(2) | request status: ${managerRequest.status}`, status: 400});}
+
+        if(acceptOrReject === 0){
+            managerRequest.status = 2; //rejected
+            managerRequest.message = message;
+
+            await managerRequest.save();
+            return res.status(200).json({message: 'Manager request rejected successfully', managerRequest: managerRequest, status: 200});
+        }else{
+            managerRequest.status = 1; //accepted
+            managerRequest.message = message;
+            managerRequest.managerId = managerId;
+            // job.managerId = managerRequest.managerId;
+
+            job.managerId = managerId;  // **assigning managerId to job
+            manager.assignedJobs.push(job._id);  // **assigning jobId to manager
+
+            await job.save();
+            await managerRequest.save();
+            await manager.save();
+
+            return res.status(200).json({message: 'Manager request accepted successfully', managerRequest: managerRequest, status: 200});
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
+    }
+};
+
+//accept or reject manager request for 'lead'
+exports.leadManagerRequest=async(req,res)=>{
+    const {managerRequestId, managerId, acceptOrReject, message}=req.body;
+
+    if(!mongoose.Types.ObjectId.isValid(managerRequestId) || !mongoose.Types.ObjectId.isValid(managerId)){return res.status(400).json({message: `Invalid id | managerRequestId: ${managerRequestId} | managerId: ${managerId}`, status: 400});};
+    if(acceptOrReject!==0 && acceptOrReject!==1){return res.status(400).json({message: 'acceptOrReject must be 0 or 1 ( 0: reject | 1: accept ) ', status: 400});}
+    if(!message){return res.status(400).json({message: 'message is required', status: 400});}
+
+    try {
+        const managerRequest = await ManagerRequest.findById(managerRequestId);
+        const manager = await Manager.findById(managerId);
+        const lead = await Lead.findById(managerRequest.leadId);
+
+        if(!managerRequest){return res.status(400).json({message: `managerRequest not found | managerRequestId: ${managerRequestId}`, status: 400});}
+        if(!manager){return res.status(400).json({message: `Manager not found | managerId: ${managerId}`, status: 400});}
+        if(managerRequest.status!==0){return res.status(400).json({message: `Manager request already accepted(1) or rejected(2) | request status: ${managerRequest.status}`, status: 400});}
+
+        if(acceptOrReject === 0){
+            managerRequest.status = 2; //rejected
+            managerRequest.message = message;
+
+            await managerRequest.save();
+            return res.status(200).json({message: 'Manager request rejected successfully', managerRequest: managerRequest, status: 200});
+        } else {
+            managerRequest.status = 1; //accepted
+            managerRequest.message = message;
+            managerRequest.managerId = managerId;
+
+            lead.managerId = managerId;  // **assigning managerId to lead
+            manager.assignedLeads.push(lead._id);  // **assigning leadId to manager
+
+            await managerRequest.save();
+            await lead.save();
+            await manager.save();
+
+            return res.status(200).json({message: 'Manager request accepted successfully', managerRequest: managerRequest, status: 200});
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
+    }
+};
+
+//get all manager requests by managerId
 
 

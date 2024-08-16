@@ -3,6 +3,8 @@ const Job = require('../../model/job');
 const JobOffer = require('../../model/jobOffer');
 const Salary = require('../../model/salary');
 const Otp = require('../../model/otp');
+const Manager = require('../../model/manager');
+const ManagerRequest = require('../../model/managerRequest');
 const {default: mongoose} = require('mongoose');
 const {scheduleJobStatusChangeOnSpecificDate} = require('../../service/scheduler');
 const { sendEmailOtp } = require('../../service/emailService');
@@ -166,7 +168,7 @@ exports.completeJobOtp = async (req, res) => {
         const subject = 'OTP for job completion';
         const message = 'Your OTP for job completion is';
 
-        const emailSent = await sendEmailOtp(freelancer.email, job.otpCode,subject, message);
+        await sendEmailOtp(freelancer.email, job.otpCode, subject, message);
 
         return res.status(200).json({message: `Otp sent successfully`, recruiter: recruiter, status: 200});
     } catch (error) {
@@ -201,6 +203,38 @@ exports.completeJob = async (req, res) => {
         return res.status(200).json({message: `Job completed successfully`, job: job, recruiter: recruiter, status: 200});
     } catch (error) {
         console.log('Error in completeJob: ', error);
+        return res.status(500).json({message: 'Internal server error', status: 500});
+    }
+};
+
+//request to assign manager to job (by recruiter) by manager id
+exports.requestManagerJob = async (req, res) => {
+    const { jobId } = req.body;
+    const currentRecruiterUserId = req.id;
+
+    if(!mongoose.Types.ObjectId.isValid(jobId)){return res.status(400).json({message: `Invalid id | jobId: ${jobId}`, status: 400})};
+
+    try {
+        const job = await Job.findById(jobId);
+        // const manager = await Manager.findById(managerId);
+        // const recruiter = await User.findById(currentRecruiterUserId);
+
+        if(!job){return res.status(404).json({message: `Job or manager or recruiter not found | jobId: ${jobId} | recruiterUserId: ${currentRecruiterUserId}`, status: 404})}
+        if(!job.recruiterUserId.equals(currentRecruiterUserId)){return res.status(400).json({message: `You are not authorized to request manager for this job, because you are not recruiter of this job`, status: 400})};
+        if(job.managerId){return res.status(400).json({message: `Manager already assigned to this job`, status: 400})}
+
+        const managerRequest = new ManagerRequest({
+            jobId: jobId,
+            status: 0  //pending-request
+        });
+
+        await managerRequest.save();
+        // job.managerRequests.push(managerRequest._id);
+        // await job.save();
+
+        return res.status(200).json({message: `Manager request sent successfully`, managerRequest: managerRequest, recruiter: recruiter, status: 200});
+    } catch (error) {
+        console.log('Error in requestManagerJob: ', error);
         return res.status(500).json({message: 'Internal server error', status: 500});
     }
 };
