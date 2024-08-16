@@ -20,12 +20,12 @@ const managerSchema = new mongoose.Schema({
     }],
     assignedJobs:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'sp_job'
+        ref: 'sp_job',
     }],
     assignedLeads:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_lead'
-    }],
+    }]
     
 }, {timestamps: true});
 

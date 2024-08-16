@@ -15,7 +15,7 @@ const managerRequestSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_lead',
     },
-    status:{
+    status:{ //if status is 0 more than 3 days, then it will be automatically rejected because of 'cron-job'
         type: Number,
         enums: [0, 1, 2], // 0: pending-request, 1: accepted-request, 2: rejected-request
         default: 0
