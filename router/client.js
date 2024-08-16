@@ -1,21 +1,20 @@
 const router = require('express').Router();
 const upload = require('../middleware/multerConfig');
 
-const { createLead, approveBid, approveMilestone, assignLead, updateMilestoneToInProgress, completeMilestone, uploadRequirements } = require('../controller/userController/leadController');
+const { createLead, approveBid, approveMilestone, assignLead, updateMilestoneToInProgress, completeMilestone, uploadRequirements, requestManagerLead } = require('../controller/userController/leadController');
 const { createOrder, approveOrderRequirementsByClient, uploadOrderRequirements, gigOrderCancelByClient } = require('../controller/userController/gigController');
 const { provideRating, provideFeedbackOrRatingToGig } = require('../controller/userController/rating');
-const { clientHome } = require('../controller/userController/user');
+const { requestManagerJob, makeJobOffer, sendSalary, completeJobOtp, completeJob} = require('../controller/userController/hire');
 
 //Lead
 router.post('/createLead', upload.array('attachments', 10), createLead);
-// router.post('/doBid', doBid);
 router.post('/approveBid/:bidId', approveBid);
 router.post('/assignLead/:bidId', assignLead);
-// router.post('/createMilestone', createMilestone);
 router.post('/approveMilestone/:milestoneId', approveMilestone);
 router.post('/updateMilestoneToInProgress/:milestoneId', updateMilestoneToInProgress); //After payment
 router.post('/completeMilestone/:milestoneId', completeMilestone);
 router.patch('/uploadRequirements', upload.array('attachments', 10), uploadRequirements);
+router.post('/requestManagerLead', requestManagerLead);
 
 //Gig
 router.post('/createOrder', createOrder);
@@ -36,7 +35,9 @@ router.patch('/gigOrderCancelByClient', gigOrderCancelByClient);
 router.post('/provideRating', provideRating);
 router.post('/provideFeedbackOrRatingToGig', provideFeedbackOrRatingToGig);
 
-//Home
+//Hire
+router.post('/requestManagerJob', requestManagerJob);
+router.post('/makeJobOffer', makeJobOffer);
 
 
 module.exports = router;

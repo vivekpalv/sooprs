@@ -5,6 +5,7 @@ const { addVerifiedSkills, addSkill, uploadResume } = require('../controller/use
 const { doKyc } = require('../controller/userController/kyc');
 const { createMilestone, doBid } = require('../controller/userController/leadController');
 const { createGig, approveOrderRequirementsByProfessional, gigOrderCancelByProfessional, requestOtpForGigOrderCompletion, completeOrderByProfessional } = require('../controller/userController/gigController');
+const { acceptOrRejectJobOffer } = require('../controller/userController/hire');
 
 //Actions
 router.patch('/addSkill', addSkill); //both verifiedSkill and skill
@@ -26,5 +27,7 @@ router.patch('/gigOrderCancelByProfessional', gigOrderCancelByProfessional);
 router.patch('/requestOtpForGigOrderCompletion/:id', requestOtpForGigOrderCompletion);
 router.patch('/completeOrderByProfessional', completeOrderByProfessional);
 
+//Hire
+router.patch('/acceptOrRejectJobOffer', acceptOrRejectJobOffer);
 
 module.exports = router;
