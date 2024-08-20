@@ -27,7 +27,8 @@ const {setupSocket, setupSocketPrivate} = require('./service/chatingService');
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
-// setupSocket(server);
+setupSocket(server);
+// setupSocketPrivate(server);
 
 app.use(cors());
 app.use(express.urlencoded({extended: true}));

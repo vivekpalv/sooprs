@@ -21,5 +21,5 @@ const verifiedSooprsSchema = new mongoose.Schema({
     
 }, {timestamps: true});
 
-const VerifiedSooprs = mongoose.model('verifiedSooprs', verifiedSooprsSchema);
+const VerifiedSooprs = mongoose.model('sp_verified_sooprs', verifiedSooprsSchema);
 module.exports = VerifiedSooprs

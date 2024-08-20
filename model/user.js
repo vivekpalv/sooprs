@@ -51,17 +51,12 @@ const userSchema = new mongoose.Schema({
     city: {
         type: String
     },
-    isEmailVerified: {
+    isEmailVerified: { //verified email
         type: Number, 
         enums: [0, 1], // 0: No, 1: Yes
         default: 0
     },
-    // isKycVerified: {
-    //     type: Number,
-    //     enums: [0, 1], // 0: no, 1: yes
-    //     default: 0
-    // },
-    isVerifiedSooprs:{
+    isVerifiedSooprs:{ //verified sooprs (example: twitter-verified)
         type: Number,
         enums: [0, 1], // 0: No, 1: Yes
         default: 0
@@ -76,10 +71,6 @@ const userSchema = new mongoose.Schema({
         enums: [0, 1], // 0: No, 1: Yes
         default: 0
     },
-    // wallet: {
-    //     type: Number,
-    //     default: 0
-    // },
     kycStatus: {
         type: Number,
         enums: [0, 1, 2, 3], // 0: not verified, 1: submitedDocuments, 2: approved, 3: rejected
@@ -97,12 +88,12 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_credit'
     },
-    //Leads created by user
-    leads: [{
+    
+    leads: [{ //Leads created by client User
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_lead'
     }],
-    gigs: [{
+    gigs: [{ //Gigs created by proffessional User
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_gig'
     }],
@@ -114,7 +105,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_job_offer'
     }],
-    jobs: [{
+    jobs: [{ //assigned jobs of proffessional User
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sp_job'
     }],

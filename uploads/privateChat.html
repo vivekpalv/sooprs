@@ -4,25 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Socket.IO Client</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const socket = io('http://localhost:7000');
 
-      const user1 = 'userA';
-      const user2 = 'userB';
+      // const user1 = 'userA';
+      // const user2 = 'userB';
+      const sender = "66a8951cf09c51813ee12117";
+      const receiver = "66b5c33add2b3eb694d35c71";
 
       socket.on('connect', () => {
         console.log('Connected to the server');
 
         // Join a private room
-        socket.emit('joinPrivateRoom', { user1, user2 });
+        // socket.emit('joinPrivateRoom', { user1, user2 });
+        socket.emit('joinPrivateRoom', { sender, receiver });
 
         // Send a private message
-        socket.emit('privateMessage', { user1, user2, message: 'Hello, this is a private message!' });
+        socket.emit('privateMessage', { sender: sender, receiver: receiver, message: 'Hello, this is a private message!' });
       });
 
       socket.on('privateMessage', (data) => {
+        console.log(data);
         console.log(`Received private message from ${data.sender}: ${data.message}`);
       });
 
