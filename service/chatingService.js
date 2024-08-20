@@ -52,7 +52,6 @@ exports.setupSocket = (server) => {
 
             await newMessage.save();
             console.log("newMessage: ", newMessage);
-            
 
             console.log(`Message from ${socket.id} in room ${room}: ${message}`);
             io.to(room).emit('privateMessage', { sender: socket.id, message: 'Message from backend for private chat' });
